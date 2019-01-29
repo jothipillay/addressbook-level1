@@ -73,6 +73,7 @@ public class AddressBook {
     private static final String MESSAGE_DELETE_PERSON_SUCCESS = "Deleted Person: %1$s";
     private static final String MESSAGE_DISPLAY_PERSON_DATA = "%1$s  Phone Number: %2$s  Email: %3$s";
     private static final String MESSAGE_DISPLAY_LIST_ELEMENT_INDEX = "%1$d. ";
+    private static final String MESSAGE_COMMAND_EDIT_NAME = "Person's name edited"; //TODO
     private static final String MESSAGE_GOODBYE = "Exiting Address Book... Good bye!";
     private static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format: %1$s " + LS + "%2$s";
     private static final String MESSAGE_INVALID_FILE = "The given file name [%1$s] is not a valid file name!";
@@ -120,6 +121,18 @@ public class AddressBook {
                                                     + "the last find/list call.";
     private static final String COMMAND_DELETE_PARAMETER = "INDEX";
     private static final String COMMAND_DELETE_EXAMPLE = COMMAND_DELETE_WORD + " 1";
+
+    //TODO
+    private static final String COMMAND_DELETE_MULTIPLE = "multidelete";
+    private static final String COMMAND_MULTIDELETE_DESC = "Deletes all persons identified by the index numbers used in "
+            + "the last find/list call.";
+    private static final String COMMAND_MULTIDELETE_PARAMETER = "INDICES";
+    private static final String COMMAND_MULTIDELETE_EXAMPLE = COMMAND_DELETE_MULTIPLE + "2 4 5";
+
+    //TODO
+    //private static final String COMMAND_EDIT_WORD = "edit";
+    //private static final String COMMAND_EDIT_DESC = "Edits entry identified by the index number used in "
+    //+ "the last find/list call.";
 
     private static final String COMMAND_CLEAR_WORD = "clear";
     private static final String COMMAND_CLEAR_DESC = "Clears address book permanently.";
@@ -215,6 +228,7 @@ public class AddressBook {
             echoUserCommand(userCommand);
             String feedback = executeCommand(userCommand);
             showResultToUser(feedback);
+            //System.out.println("polll");
         }
     }
 
@@ -368,23 +382,26 @@ public class AddressBook {
         final String[] commandTypeAndParams = splitCommandWordAndArgs(userInputString);
         final String commandType = commandTypeAndParams[0];
         final String commandArgs = commandTypeAndParams[1];
+
         switch (commandType) {
-        case COMMAND_ADD_WORD:
-            return executeAddPerson(commandArgs);
-        case COMMAND_FIND_WORD:
-            return executeFindPersons(commandArgs);
-        case COMMAND_LIST_WORD:
-            return executeListAllPersonsInAddressBook();
-        case COMMAND_DELETE_WORD:
-            return executeDeletePerson(commandArgs);
-        case COMMAND_CLEAR_WORD:
-            return executeClearAddressBook();
-        case COMMAND_HELP_WORD:
-            return getUsageInfoForAllCommands();
-        case COMMAND_EXIT_WORD:
-            executeExitProgramRequest();
-        default:
-            return getMessageForInvalidCommandInput(commandType, getUsageInfoForAllCommands());
+            case COMMAND_DELETE_MULTIPLE:
+                return executeMultiDelete(commandArgs);
+            case COMMAND_ADD_WORD:
+                return executeAddPerson(commandArgs);
+            case COMMAND_FIND_WORD:
+                return executeFindPersons(commandArgs);
+            case COMMAND_LIST_WORD:
+                return executeListAllPersonsInAddressBook();
+            case COMMAND_DELETE_WORD:
+                return executeDeletePerson(commandArgs);
+            case COMMAND_CLEAR_WORD:
+                return executeClearAddressBook();
+            case COMMAND_HELP_WORD:
+                return getUsageInfoForAllCommands();
+            case COMMAND_EXIT_WORD:
+                executeExitProgramRequest();
+            default:
+                return getMessageForInvalidCommandInput(commandType, getUsageInfoForAllCommands());
         }
     }
 
@@ -493,6 +510,51 @@ public class AddressBook {
         return matchedPersons;
     }
 
+    /*
+    private static String executeEditPerson(String commandArgs) {
+
+        if (!isDeletePersonArgsValid(commandArgs)) {
+            return getMessageForInvalidCommandInput(COMMAND_EDIT_WORD, getUsageInfoForEditNameCommand());
+        }
+        final int targetVisibleIndex = extractTargetIndexFromDeletePersonArgs(commandArgs);
+        if (!isDisplayIndexValidForLastPersonListingView(targetVisibleIndex)) {
+            return MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
+        }
+
+
+        return null;
+    }
+    */
+
+    private static String executeMultiDelete(String commandArgs) {
+
+        if (!isMultiDeleteArgsValid(commandArgs)) {
+            return getMessageForInvalidCommandInput(COMMAND_DELETE_MULTIPLE, getUsageInfoForDeleteMultipleCommand());
+        }
+        ArrayList<Integer> storeIndex = new ArrayList<>();
+        String [] arguments = commandArgs.split(" ");
+        for(int i = 0; i < arguments.length; i++) {
+            int currIndex = Integer.parseInt(arguments[i].trim());
+            if (!isDisplayIndexValidForLastPersonListingView(currIndex)) {
+                return MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
+            }
+            storeIndex.add(currIndex);
+        }
+        ArrayList<String []> targetIndex = new ArrayList<>();
+        for(int j = 0; j < storeIndex.size(); j++) {
+            targetIndex.add(getPersonByLastVisibleIndex(storeIndex.get(j)));
+        }
+        for(int k = 0; k < storeIndex.size(); k++) {
+            if(deletePersonFromAddressBook(targetIndex.get(k))) {
+                getMessageForSuccessfulDelete(targetIndex.get(k));
+            } else {
+                return MESSAGE_PERSON_NOT_IN_ADDRESSBOOK;
+            }
+        }
+        return "Multi Delete Successful";
+    }
+
+
     /**
      * Deletes person identified using last displayed index.
      *
@@ -510,6 +572,24 @@ public class AddressBook {
         final String[] targetInModel = getPersonByLastVisibleIndex(targetVisibleIndex);
         return deletePersonFromAddressBook(targetInModel) ? getMessageForSuccessfulDelete(targetInModel) // success
                                                           : MESSAGE_PERSON_NOT_IN_ADDRESSBOOK; // not found
+    }
+
+    /**
+     * Checks validity of multi delete person argument string's format.
+     * @param rawArgs raw command args string for the delete person command
+     * @return whether the input args string is valid
+     */
+
+    private static boolean isMultiDeleteArgsValid(String rawArgs) {
+        String [] arguments = rawArgs.split(" ");
+        int checkIndex;
+        for (int i = 0; i < arguments.length; i++) {
+            checkIndex = Integer.parseInt(arguments[i].trim());
+            if(checkIndex < DISPLAYED_INDEX_OFFSET) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1111,6 +1191,19 @@ public class AddressBook {
                 + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_DELETE_PARAMETER) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_DELETE_EXAMPLE) + LS;
     }
+
+    /** Returns the string for showing 'multidelete' command usage instruction */
+    private static String getUsageInfoForDeleteMultipleCommand() {
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_DELETE_MULTIPLE, COMMAND_MULTIDELETE_DESC) + LS
+                + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_MULTIDELETE_PARAMETER) + LS
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_MULTIDELETE_EXAMPLE) + LS;
+    }
+
+    /** Returns the string for showing 'edit name' command usage instruction */
+    //TODO
+    //private static String getUsageInfoForEditNameCommand() {
+    //    return String.format(MESSAGE_COMMAND_HELP, COMMAND_EDIT_WORD, COMMAND_EDIT_DESC) + LS;
+    //}
 
     /** Returns string for showing 'clear' command usage instruction */
     private static String getUsageInfoForClearCommand() {

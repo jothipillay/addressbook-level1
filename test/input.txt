@@ -91,12 +91,29 @@
   delete 1
   list
 
+
 ##########################################################
 # test clear command
 ##########################################################
 
   # clears all
   clear
+  list
+
+##########################################################
+# test delete people command
+##########################################################
+
+  # should add correctly
+  add Adam Brown p/123456 e/adam@gmail.com
+  list
+  multidelete 2
+  list
+  add Betsy Choo p/222777 e/benchoo@nus.edu.sg
+  list
+  multidelete 1 2
+  list
+  multidelete 1 2
   list
 
 ##########################################################

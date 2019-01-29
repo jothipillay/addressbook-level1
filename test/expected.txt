@@ -275,6 +275,45 @@
 || 
 || 0 persons found!
 || ===================================================
+|| Enter command: || [Command entered:  add Adam Brown p/123456 e/adam@gmail.com]
+|| New person added: Adam Brown, Phone: 123456, Email: adam@gmail.com
+|| ===================================================
+|| Enter command: || [Command entered:  list]
+|| 	1. Adam Brown  Phone Number: 123456  Email: adam@gmail.com
+|| 
+|| 1 persons found!
+|| ===================================================
+|| Enter command: || [Command entered:  multidelete 2]
+|| The person index provided is invalid
+|| ===================================================
+|| Enter command: || [Command entered:  list]
+|| 	1. Adam Brown  Phone Number: 123456  Email: adam@gmail.com
+|| 
+|| 1 persons found!
+|| ===================================================
+|| Enter command: || [Command entered:  add Betsy Choo p/222777 e/benchoo@nus.edu.sg]
+|| New person added: Betsy Choo, Phone: 222777, Email: benchoo@nus.edu.sg
+|| ===================================================
+|| Enter command: || [Command entered:  list]
+|| 	1. Adam Brown  Phone Number: 123456  Email: adam@gmail.com
+|| 	2. Betsy Choo  Phone Number: 222777  Email: benchoo@nus.edu.sg
+|| 
+|| 2 persons found!
+|| ===================================================
+|| Enter command: || [Command entered:  multidelete 1 2]
+|| Multi Delete Successful
+|| ===================================================
+|| Enter command: || [Command entered:  list]
+|| 
+|| 0 persons found!
+|| ===================================================
+|| Enter command: || [Command entered:  multidelete 1 2]
+|| The person index provided is invalid
+|| ===================================================
+|| Enter command: || [Command entered:  list]
+|| 
+|| 0 persons found!
+|| ===================================================
 || Enter command: || [Command entered:  exit]
 || Exiting Address Book... Good bye!
 || ===================================================
